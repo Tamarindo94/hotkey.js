@@ -20,7 +20,7 @@ function setHotkey(commands, callback, target=window, override=true) {
 			}, true)
 		})
 		console.log("hotkey " + cmd + " sethi")
-	}
+	})
 }
 
 function splouse(arr, startEl, ct=1) {
