@@ -5,13 +5,14 @@ function setHotkey(cmd, callback, target=window, override=true) {
 	let shift = splouseBool(tokens, "shift")
 	let alt = splouseBool(tokens, "alt")
 	let keyCode = tokens[0].charCodeAt(0)
-	console.log(keyCode)
+	if(keyCode === 46) keyCode = 110
+	console.log("keycode outside", keyCode)
 	;["keydown", "keyup", "keypress"].forEach( evType => {
 		console.log(target)
 		target.addEventListener(evType, e => {
 			if(ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey || keyCode !== e.keyCode) return
 			if(override) { e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation() }
-			console.log("keycode", e.keyCode)
+			console.log("keycode inside", e.keyCode, e.key)
 			if(e.type === "keyup" && callback) callback(e, cmd)
 		}, true)
 	})
