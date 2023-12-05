@@ -8,7 +8,7 @@ function setHotkey(commands, callback, target=window, override=true) {
 		let alt = splouseBool(tokens, "alt")
 		let keyCode = tokens[0].charCodeAt(0)
 		if(keyCode === 110) keyCode = 190
-		if(keyCode === 108) e.keyCode = 188
+		if(keyCode === 108) keyCode = 188
 		console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode outside", keyCode, "target", target)
 		;["keydown", "keyup", "keypress"].forEach( evType => {
 			target.addEventListener(evType, (e) => {
