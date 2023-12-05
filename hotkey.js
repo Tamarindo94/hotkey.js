@@ -1,6 +1,6 @@
 // Only single hotkeys are supported, with supported modifiers ctrl, shoft, alt
 function setHotkey(cmd, callback, target, override=true) {
-	let tokens = cmd.replace("++", "+plus").toLowerCase().split("+").map()
+	let tokens = cmd.replace("++", "+plus").toLowerCase().split("+").map( tok => tok.trim() )
 	let ctrl = splouseBool(tokens, "ctrl")
 	let shift = splouseBool(tokens, "shift")
 	let alt = splouseBool(tokens, "alt")
