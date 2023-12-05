@@ -10,7 +10,7 @@ function setHotkey(cmd, callback, target, override=true) {
 		;(target || window).addEventListener(evType, e => {
 			if(ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey || keyCode !== e.keyCode) return
 			if(override) { e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation() }
-			callback()
+			if(callback) callback()
 		}, true)
 	})
 }
