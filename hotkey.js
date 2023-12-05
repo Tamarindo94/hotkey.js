@@ -1,7 +1,7 @@
 function setHotkey(cmd, callback, override=true) {
 	let tokens = cmd.replace("++", "+plus").toLowerCase().split("+")
 	console.log(tokens)
-	let ctrl = splouse(tokens "ctrl")
+	let ctrl = splouse(tokens, "ctrl")
 	console.log(tokens)
 	let shift = splouse(tokens, "shift")
 	console.log(tokens)
