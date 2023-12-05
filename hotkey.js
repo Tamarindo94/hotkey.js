@@ -6,7 +6,6 @@ function setHotkey(cmd, callback, target=window, override=true) {
 	let alt = splouseBool(tokens, "alt")
 	console.log(tokens)
 	let keyCode = tokens[0].charCodeAt(0)
-	target = target || window
 	;["keydown", "keyup", "keypress"].forEach( evType => {
 		target.addEventListener(evType, e => {
 			if(ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey || keyCode !== e.keyCode) return
