@@ -7,9 +7,9 @@ function setHotkey(cmd, callback, target=window, override=true) {
 	let keyCode = tokens[0].charCodeAt(0)
 	if(keyCode === 46) keyCode = 110
 	console.log("keycode outside", keyCode)
+	console.log("target", target)
 	;["keydown", "keyup", "keypress"].forEach( evType => {
-		console.log(target)
-		target.addEventListener(evType, e => {
+		target.addEventListener(evType, (e) => {
 			console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode", e.keyCode, "key", e.key)
 			if(ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey || keyCode !== e.keyCode) return
 			if(override) { e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation() }
