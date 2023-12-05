@@ -17,7 +17,7 @@ function setHotkey(cmd, callback, target=window, override=true) {
 			if(e.type === "keyup" && callback) callback(e, cmd)
 		}, true)
 	})
-	console.log("hotkey " + cmd + " seth")
+	console.log("hotkey " + cmd + " set")
 }
 
 function splouse(arr, startEl, ct=1) {
