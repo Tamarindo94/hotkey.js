@@ -1,13 +1,14 @@
 // Only single hotkeys are supported, with supported modifiers ctrl, shoft, alt
-function setHotkey(cmd, callback, target, override=true) {
+function setHotkey(cmd, callback, target=window, override=true) {
 	let tokens = cmd.replace("++", "+plus").toLowerCase().split("+").map( tok => tok.trim() )
 	let ctrl = splouseBool(tokens, "ctrl")
 	let shift = splouseBool(tokens, "shift")
 	let alt = splouseBool(tokens, "alt")
 	console.log(tokens)
 	let keyCode = tokens[0].charCodeAt(0)
+	target = target || window
 	;["keydown", "keyup", "keypress"].forEach( evType => {
-		;(target || window).addEventListener(evType, e => {
+		target.addEventListener(evType, e => {
 			if(ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey || keyCode !== e.keyCode) return
 			if(override) { e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation() }
 			if(callback) callback()
