@@ -4,8 +4,8 @@ function setHotkey(cmd, callback, target=window, override=true) {
 	let ctrl = splouseBool(tokens, "ctrl")
 	let shift = splouseBool(tokens, "shift")
 	let alt = splouseBool(tokens, "alt")
-	console.log(tokens)
 	let keyCode = tokens[0].charCodeAt(0)
+	console.log(keyCode)
 	;["keydown", "keyup", "keypress"].forEach( evType => {
 		console.log(target)
 		target.addEventListener(evType, e => {
