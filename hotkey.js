@@ -9,7 +9,7 @@ function setHotkey(commands, callback, target=window, override=true) {
 		let keyCode = tokens[0].charCodeAt(0)
 		if([46,110].includes(keyCode)) keyCode = 190
 		if([44, 108].includes(keyCode)) keyCode = 188
-		// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode outside", keyCode, "target", target)
+		console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode outside", keyCode, "target", target)
 		;["keydown", "keyup", "keypress"].forEach( evType => {
 			target.addEventListener(evType, (e) => {
 				console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode inside", e.keyCode, "key", e.key)
@@ -18,7 +18,7 @@ function setHotkey(commands, callback, target=window, override=true) {
 				if(e.type === "keyup" && callback) callback(e, cmd)
 			}, true)
 		})
-		console.log("hotkey " + cmd + " sethi")
+		console.log("hotkey " + cmd + " set")
 	})
 }
 
