@@ -1,5 +1,5 @@
-// Only single hotkeys are supported, with supported modifiers ctrl, shoft, alt
-function setHotkey(commands, callback, target=window, override=true) {
+// Only single bindings are supported, with supported modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
+function setHotkeys(commands, callback, target=window, override=true) {
 	commands = Array.isArray(commands) ? commands : [commands]
 	commands.forEach( cmd => {
 		let tokens = cmd.replace("++", "+plus").toLowerCase().split("+").map( tok => tok.trim() )
@@ -9,16 +9,16 @@ function setHotkey(commands, callback, target=window, override=true) {
 		let keyCode = tokens[0].charCodeAt(0)
 		if([46,110].includes(keyCode)) keyCode = 190
 		if([44, 108].includes(keyCode)) keyCode = 188
-		console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode outside", keyCode, "target", target)
+		// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode outside", keyCode, "target", target)
 		;["keydown", "keyup", "keypress"].forEach( evType => {
 			target.addEventListener(evType, (e) => {
-				console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode inside", e.keyCode, "key", e.key)
 				if(ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey || keyCode !== e.keyCode) return
+				// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "keyCode inside", e.keyCode, "key", e.key)
 				if(override) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation() }
-				if(e.type === "keyup" && callback) callback(e, cmd)
+				if(e.type !== "keydown" && callback) callback(e, cmd)
 			}, true)
 		})
-		console.log("hotkey " + cmd + " set")
+		// console.log("hotkey " + cmd + " set")
 	})
 }
 
