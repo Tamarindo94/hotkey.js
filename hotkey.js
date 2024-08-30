@@ -1,22 +1,36 @@
 const _LOCALE = "IT"
 
-// Only single bindings are supported, with supported modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
-function setHotkeys(commands, callback, target=window, triggers=["keyup"], override=true) {
-	commands = toArray(commands)
-	triggers = toArray(triggers)
-	commands.forEach( cmd => {
+const defaultOpts = {
+	target: window,
+	triggers: "keyup",
+	override: true,
+	once: false
+}
+
+// Can only bind one key, with modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
+function setHotkeys(commands, callback, opts) {
+	opts = {...defaultOpts, ...opts}
+	if(typeof opts.triggers === "string") opts.triggers = opts.triggers.split(" ")
+	const keyEvTypes = ["keydown", "keyup", "keypress"]
+	toArray(commands).forEach( cmd => {
 		let tokens = tokenizeCmd(cmd)
-		let [ctrl, shift, alt] = spliceByValues(tokens, "ctrl", "shift", "alt")
-		let boundKey = _MAPS["common"][tokens[0]] || _MAPS[_LOCALE][tokens[0]] || tokens[0].charCodeAt(0)
+		let [ctrl, shift, alt] = ["ctrl", "shift", "alt"].map( k => !!spliceValue(tokens, k) )
+		// non-modifier tokens not present in _maps must be put in uppercase for its keyCode to match boundKey
+		let boundKey = _MAPS["common"][tokens[0]] || _MAPS[_LOCALE][tokens[0]] || tokens[0].toUpperCase().charCodeAt(0)
 		// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey outside", boundKey, "target", target)
-		;["keydown", "keyup", "keypress"].forEach( evType => {
-			target.addEventListener(evType, (e) => {
-				if(boundKey !== e.keyCode || ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey) return
-				// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey inside", e.boundKey, "key", e.key)
-				if(override) suppressEvent(e)
-				if(callback && triggers.includes(e.type)) callback(e, cmd)
-			}, true) // use capture
-		})
+		const hotkeyCb = (e) => {
+			// console.log("boundkey = " + boundKey + ", pressed: " + e.keyCode + ", e: " + e.type)
+			// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey inside", boundKey, "key", e.keyCode)
+			if(boundKey !== e.keyCode || ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey) return
+			if(opts.override) suppressEvent(e)
+			if(opts.triggers.includes(e.type)) {
+				// console.log("Trigger for " + cmd)
+				if(callback) callback(e, cmd)
+				if(!opts.once) return
+				keyEvTypes.forEach( evType => opts.target.removeEventListener(evType, hotkeyCb, {capture:true}) )
+			}
+		}
+		keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
 		// console.log("hotkey " + cmd + " set")
 	})
 }
@@ -31,28 +45,10 @@ function tokenizeCmd(cmd) {
 	return [...new Set( cmd.toLowerCase().replace("++", "+plus").split("+").map( tok => tok.trim() ) )]
 }
 
-function spliceByValues(arr, elems) {
-	let ret = []
-	for(let i=0, n=elems.length; i < n; i++) {
-		let index = arr.findIndex( v => v === elems[i] )
-		ret.push(arr.splice(index, 1)[0])
-	}
-	return ret
-	// let ids = elems.map( el => arr.findIndex( v => v === el ) )
-	// return ids.map( id => arr.splice(id, 1) )
-}
-
-function splouse(arr, ...elems) {
-	for(let i=0, n=elems.length; i < n; i++) {
-		let id = arr.findIndex( v => v === startEl )
-		if(id !== -1) arr.splice(id, 1)
-	}
-	return arr
-}
-
-/** Returns true if any elem is spliced */
-function splouseBool(arr, ...elems) {
-	return arr.length !== splouse(arr, elems).length
+function spliceValue(arr, splicer) {
+	for(let i=0, n=arr.length; i < n; i++)
+		if(arr[i] === splicer)
+			return arr.splice(i, 1)[0]
 }
 
 function toArray(obj) {
