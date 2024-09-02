@@ -1,6 +1,6 @@
 const _LOCALE = "IT"
 
-const defaultOpts = {
+let defaultOpts = {
   target: window,
   triggers: ["keyup"],
   override: true,
