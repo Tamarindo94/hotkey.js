@@ -10,6 +10,7 @@ let _defaultOpts = {
 
 function setHotkeysDefaultOpts(nuOpts) {
   _defaultOpts = {..._defaultOpts, ...nuOpts}
+	return _defaultOpts
 }
 
 // Can only bind one key, with modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
