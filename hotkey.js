@@ -1,6 +1,6 @@
 const _LOCALE = "IT"
 
-let defaultOpts = {
+let _defaultOpts = {
   target: window,
   triggers: ["keyup"],
   override: true,
@@ -8,9 +8,13 @@ let defaultOpts = {
   log: false
 }
 
+function setHotkeys_defaultOpts(nuOpts) {
+  _defaultOpts = {..._defaultOpts, ...nuOpts}
+}
+
 // Can only bind one key, with modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
 function setHotkeys(commands, callback, opts) {
-  opts = {...defaultOpts, ...opts}
+  opts = {..._defaultOpts, ...opts}
   if(typeof opts.triggers === "string") opts.triggers = opts.triggers.split(" ")
   const keyEvTypes = ["keydown", "keyup", "keypress"]
   toArray(commands).forEach( cmd => {
@@ -34,30 +38,26 @@ function setHotkeys(commands, callback, opts) {
     keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture     
     if(opts.log) console.log("hotkey " + cmd + " set")
   })
-}
 
-function setHotkeysDefaultOpts(nuOpts) {
-  defaultOpts = {...defaultOpts, ...nuOpts}
-}
+  function suppressEvent(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    e.stopImmediatePropagation()
+  }
 
-function suppressEvent(e) {
-  e.preventDefault()
-  e.stopPropagation()
-  e.stopImmediatePropagation()
-}
+  function tokenizeCmd(cmd) {
+    return [...new Set( cmd.toLowerCase().replace("++", "+plus").split("+").map( tok => tok.trim() ) )]
+  }
 
-function tokenizeCmd(cmd) {
-  return [...new Set( cmd.toLowerCase().replace("++", "+plus").split("+").map( tok => tok.trim() ) )]
-}
-
-function spliceValue(arr, splicer) {
-  for(let i=0, n=arr.length; i < n; i++)
-    if(arr[i] === splicer)
-      return arr.splice(i, 1)[0]
-}
-
-function toArray(obj) {
-  return Array.isArray(obj) ? obj : [obj]
+  function spliceValue(arr, splicer) {
+    for(let i=0, n=arr.length; i < n; i++)
+      if(arr[i] === splicer)
+        return arr.splice(i, 1)[0]
+  }
+  
+  function toArray(obj) {
+    return Array.isArray(obj) ? obj : [obj]
+  }
 }
 
 const _MAPS = {
