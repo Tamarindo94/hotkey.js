@@ -8,7 +8,7 @@ let _defaultOpts = {
   log: false
 }
 
-function setHotkeys_defaultOpts(nuOpts) {
+function setHotkeysDefaultOpts(nuOpts) {
   _defaultOpts = {..._defaultOpts, ...nuOpts}
 }
 
