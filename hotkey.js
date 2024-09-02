@@ -36,7 +36,7 @@ function setHotkeys(commands, callback, opts) {
   })
 }
 
-function setHokeysDefaultOpts(nuOpts) {
+function setHotkeysDefaultOpts(nuOpts) {
   defaultOpts = {...defaultOpts, ...nuOpts}
 }
 
