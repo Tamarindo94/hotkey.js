@@ -2,7 +2,7 @@ const _LOCALE = "IT"
 
 const defaultOpts = {
   target: window,
-  triggers: "keyup",
+  triggers: ["keyup"],
   override: true,
   once: false,
   log: false
