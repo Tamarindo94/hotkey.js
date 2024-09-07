@@ -1,4 +1,5 @@
-const _LOCALE = "IT"
+setHotkeys._LOCALE = "IT"
+setHotkeys.keyEvTypes = ["keydown", "keyup", "keypress"]
 
 setHotkeys._defaultOpts = { // freeze it?
 	target: window,
@@ -16,18 +17,18 @@ function setHotkeysDefaultOpts(nuOpts) {
 
 // Can only bind one key, with modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
 function setHotkeys(commands, callback, opts) {
+	const self = setHotkeys
 	if(typeof callback === "object" && typeof opts === "function")
 		[callback, opts] = [opts, callback]
-	opts = {...setHotkeys._defaultOpts, ...opts}
+	opts = {...self._defaultOpts, ...opts}
 	if(typeof opts.triggers === "string") opts.triggers = opts.triggers.split(" ")
-	const keyEvTypes = ["keydown", "keyup", "keypress"]
-	const _MAPS = setHotkeys._MAPS
 
 	_toArray(commands).forEach( cmd => {
-		let tokens = _tokenizeCmd(cmd)
-		let [ctrl, shift, alt] = ["ctrl", "shift", "alt"].map( k => !!_spliceValue(tokens, k) )
-		// non-modifier tokens not present in _maps must be put in uppercase for its keyCode to match boundKey
-		let boundKey = _MAPS["common"][tokens[0]] || _MAPS[_LOCALE][tokens[0]] || tokens[0].toUpperCase().charCodeAt(0)
+		let ctrl, shift, alt, tokens = _tokenizeCmd(cmd)
+		if(!opts.ignoreModifiers) [ctrl, shift, alt] = ["ctrl", "shift", "alt"].map( k => !!_spliceValue(tokens, k) )
+		let boundKey = self._MAPS["common"][tokens[0]] ||
+				self._MAPS[self._LOCALE][tokens[0]] ||
+				tokens[0].toUpperCase().charCodeAt(0) // tokens not in _maps must be uppercase for keyCode to match boundKey
 		// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey outside", boundKey, "target", target)
 		const hotkeyCb = (e) => {
 			if(opts.log) console.log("boundkey = " + boundKey + ", pressed: " + e.keyCode + ", e: " + e.type)
@@ -39,10 +40,10 @@ function setHotkeys(commands, callback, opts) {
 				if(opts.log) console.log("Trigger for " + cmd)
 				if(callback) callback(e, cmd)
 				if(!opts.once) return
-				keyEvTypes.forEach( evType => opts.target.removeEventListener(evType, hotkeyCb, {capture:true}) )
+				self.keyEvTypes.forEach( evType => opts.target.removeEventListener(evType, hotkeyCb, {capture:true}) )
 			}
 		}
-		keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
+		self.keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
 		if(opts.log) console.log("hotkey " + cmd + " set")
 	})
 
