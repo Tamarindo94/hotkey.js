@@ -15,6 +15,8 @@ function setHotkeysDefaultOpts(nuOpts) {
 	return setHotkeys._defaultOpts
 }
 
+Event.prototype.suppress = function() { this.preventDefault(); this.stopPropagation(); this.stopImmediatePropagation() }
+
 // Can only bind one key, with modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
 function setHotkeys(commands, callback, opts) {
 	const self = setHotkeys
