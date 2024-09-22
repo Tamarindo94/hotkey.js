@@ -1,5 +1,5 @@
 setHotkeys._LOCALE = "IT"
-setHotkeys.keyEvTypes = ["keydown", "keyup", "keypress"]
+setHotkeys._keyEvTypes = ["keydown", "keyup", "keypress"]
 
 setHotkeys._defaultOpts = { // freeze it?
 	target: window,
@@ -42,10 +42,10 @@ function setHotkeys(commands, callback, opts) {
 				if(opts.log) console.log("Trigger for " + cmd)
 				if(callback) callback(e, cmd)
 				if(!opts.once) return
-				self.keyEvTypes.forEach( evType => opts.target.removeEventListener(evType, hotkeyCb, {capture:true}) )
+				self._keyEvTypes.forEach( evType => opts.target.removeEventListener(evType, hotkeyCb, {capture:true}) )
 			}
 		}
-		self.keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
+		self._keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
 		if(opts.log) console.log("hotkey " + cmd + " set")
 	})
 
