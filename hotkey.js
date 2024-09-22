@@ -1,83 +1,88 @@
-const _LOCALE = "IT"
+setHotkeys._LOCALE = "IT"
+setHotkeys.keyEvTypes = ["keydown", "keyup", "keypress"]
 
-// Only single bindings are supported, with supported modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
-function setHotkeys(commands, callback, target=window, triggers=["keyup"], override=true) {
-	commands = toArray(commands)
-	triggers = toArray(triggers)
-	commands.forEach( cmd => {
-		let tokens = tokenizeCmd(cmd)
-		let [ctrl, shift, alt] = spliceByValues(tokens, "ctrl", "shift", "alt")
-		let boundKey = _MAPS["common"][tokens[0]] || _MAPS[_LOCALE][tokens[0]] || tokens[0].charCodeAt(0)
+setHotkeys._defaultOpts = { // freeze it?
+	target: window,
+	triggers: ["keyup"],
+	override: true,
+	once: false,
+	log: false,
+	ignoreModifiers: false
+}
+
+Event.prototype.suppress = function() { this.preventDefault(); this.stopPropagation(); this.stopImmediatePropagation() }
+
+function setHotkeysDefaultOpts(nuOpts) {
+	setHotkeys._defaultOpts = {...setHotkeys._defaultOpts, ...nuOpts}
+	return setHotkeys._defaultOpts
+}
+
+// Can only bind one key, with modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
+function setHotkeys(commands, callback, opts) {
+	const self = setHotkeys
+	if(typeof callback === "object" && typeof opts === "function")
+		[callback, opts] = [opts, callback]
+	opts = {...self._defaultOpts, ...opts}
+	if(typeof opts.triggers === "string") opts.triggers = opts.triggers.split(" ")
+
+	_toArray(commands).forEach( cmd => {
+		let tokens = _tokenizeCmd(cmd);	let ctrl, shift, alt
+		if(!opts.ignoreModifiers) [ctrl, shift, alt] = ["ctrl", "shift", "alt"].map( k => !!_spliceValue(tokens, k) )
+		let boundKey = self._MAPS["common"][tokens[0]] ||
+				self._MAPS[self._LOCALE][tokens[0]] ||
+				tokens[0].toUpperCase().charCodeAt(0) // tokens not in _maps must be uppercase for keyCode to match boundKey
 		// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey outside", boundKey, "target", target)
-		;["keydown", "keyup", "keypress"].forEach( evType => {
-			target.addEventListener(evType, (e) => {
-				if(boundKey !== e.keyCode || ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey) return
-				// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey inside", e.boundKey, "key", e.key)
-				if(override) suppressEvent(e)
-				if(callback && triggers.includes(e.type)) callback(e, cmd)
-			}, true) // use capture
-		})
-		// console.log("hotkey " + cmd + " set")
+		const hotkeyCb = (e) => {
+			if(opts.log) console.log("boundkey = " + boundKey + ", pressed: " + e.keyCode + ", e: " + e.type)
+			if(opts.log) console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey inside", boundKey, "key", e.keyCode)
+			let modifiersOk = opts.ignoreModifiers || (ctrl === e.ctrlKey && shift === e.shiftKey && alt === e.altKey)
+			if(!modifiersOk || boundKey !== e.keyCode) return
+			if(opts.override) _suppressEvent(e)
+			if(opts.triggers.includes(e.type)) {
+				if(opts.log) console.log("Trigger for " + cmd)
+				if(callback) callback(e, cmd)
+				if(!opts.once) return
+				self.keyEvTypes.forEach( evType => opts.target.removeEventListener(evType, hotkeyCb, {capture:true}) )
+			}
+		}
+		self.keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
+		if(opts.log) console.log("hotkey " + cmd + " set")
 	})
-}
 
-function suppressEvent(e) {
-	e.preventDefault()
-	e.stopPropagation()
-	e.stopImmediatePropagation()
-}
-
-function tokenizeCmd(cmd) {
-	return [...new Set( cmd.toLowerCase().replace("++", "+plus").split("+").map( tok => tok.trim() ) )]
-}
-
-function spliceByValues(arr, elems) {
-	let ret = []
-	for(let i=0, n=elems.length; i < n; i++) {
-		let index = arr.findIndex( v => v === elems[i] )
-		ret.push(arr.splice(index, 1)[0])
+	function _suppressEvent(e) {
+		e.preventDefault()
+		e.stopPropagation()
+		e.stopImmediatePropagation()
 	}
-	return ret
-	// let ids = elems.map( el => arr.findIndex( v => v === el ) )
-	// return ids.map( id => arr.splice(id, 1) )
-}
 
-function splouse(arr, ...elems) {
-	for(let i=0, n=elems.length; i < n; i++) {
-		let id = arr.findIndex( v => v === startEl )
-		if(id !== -1) arr.splice(id, 1)
+	function _tokenizeCmd(cmd) {
+		return [...new Set( cmd.toLowerCase().replace("++", "+plus").split("+").map( tok => tok.trim() ) )]
 	}
-	return arr
+
+	function _spliceValue(arr, splicer) {
+		for(let i=0, n=arr.length; i < n; i++)
+			if(arr[i] === splicer)
+				return arr.splice(i, 1)[0]
+	}
+	
+	function _toArray(obj) {
+		return Array.isArray(obj) ? obj : [obj]
+	}
 }
 
-/** Returns true if any elem is spliced */
-function splouseBool(arr, ...elems) {
-	return arr.length !== splouse(arr, elems).length
-}
-
-function toArray(obj) {
-	return Array.isArray(obj) ? obj : [obj]
-}
-
-const _MAPS = {
+setHotkeys._MAPS = {
 	"common": {
 		'backspace': 8,
 		'tab': 9,
-		'enter': 13,
-		'return': 13,
+		'enter': 13, 'return': 13,
 		'shift': 16,
 		'ctrl': 17,
-		'alt': 18,
-		'option': 18,
+		'alt': 18, 'option': 18,
 		'capslock': 20,
-		'esc': 27,
-		'escape': 27,
+		'esc': 27, 'escape': 27,
 		'space': 32,
-		'pageup': 33,
-		'pagup': 33,
-		'pagedown': 34,
-		'pagdown': 34,
-		'pagdwn': 34,
+		'pageup': 33, 'pagup': 33,
+		'pagedown': 34,	'pagdown': 34,
 		'end': 35,
 		'home': 36,
 		'left': 37,
@@ -85,21 +90,20 @@ const _MAPS = {
 		'right': 39,
 		'down': 40,
 		'ins': 45,
-		'canc': 46,
-		'del': 46,
+		'canc': 46, 'del': 46,
 		'meta': 91,
 		// 'meta': 93,
 		// 'meta': 224,
 		'plus': 107,
 		'*': 106,
-		'+': 107,
-		'-': 109,
-		'.': 110,
-		'/': 111,
-		',': 188,
-		'-': 189,
-		'.': 190,
-		'\\': 220,
+		'numpadplus': 107,
+		'numpad-': 109,	'numpadminus': 109,
+		'numpad.': 110,	'numpaddot': 110,
+		'numpad/': 111,	'numpadslash': 111,
+		'comma': 188,	',': 188,
+		'minus': 189,	'-': 189,
+		'dot': 190,	'.': 190,
+		'backslash': 220,	'\\': 220,
 	},
 	"IT": {
 		'scrolllock': 145,
