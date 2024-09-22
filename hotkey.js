@@ -33,20 +33,20 @@ function setHotkeys(commands, callback, opts) {
 				tokens[0].toUpperCase().charCodeAt(0) // tokens not in _maps must be uppercase for keyCode to match boundKey
 		// console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey outside", boundKey, "target", target)
 		const hotkeyCb = (e) => {
-			if(opts.log) console.log("boundkey = " + boundKey + ", pressed: " + e.keyCode + ", e: " + e.type)
-			if(opts.log) console.log("ctrl", ctrl, "shift", shift, "alt", alt, "boundKey inside", boundKey, "key", e.keyCode)
+			if(opts.log) console.log(`boundkey: ${boundKey}, pressed: ${e.keyCode}, e: ${e.type}`)
+			if(opts.log) console.log("ctrl",ctrl,"shift",shift,"alt",alt, "boundKey inside", boundKey, "key", e.keyCode)
 			let modifiersOk = opts.ignoreModifiers || (ctrl === e.ctrlKey && shift === e.shiftKey && alt === e.altKey)
 			if(!modifiersOk || boundKey !== e.keyCode) return
 			if(opts.override) _suppressEvent(e)
 			if(opts.triggers.includes(e.type)) {
-				if(opts.log) console.log("Trigger for " + cmd)
+				if(opts.log) console.log(`Trigger for ${cmd}`)
 				if(callback) callback(e, cmd)
 				if(!opts.once) return
 				self._keyEvTypes.forEach( evType => opts.target.removeEventListener(evType, hotkeyCb, {capture:true}) )
 			}
 		}
 		self._keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
-		if(opts.log) console.log("hotkey " + cmd + " set")
+		if(opts.log) console.log(`hotkey ${cmd} set`)
 	})
 
 	function _suppressEvent(e) {
@@ -96,10 +96,10 @@ setHotkeys._MAPS = {
 		// 'meta': 224,
 		'plus': 107,
 		'*': 106,
-		'numpadplus': 107,
-		'numpad-': 109,	'numpadminus': 109,
+		'numpadplus': 107, 'numpadadd': 107,
+		'numpad-': 109,	'numpadsub': 109,	'numpadminus': 109,
 		'numpad.': 110,	'numpaddot': 110,
-		'numpad/': 111,	'numpadslash': 111,
+		'numpad/': 111,	'numpaddiv': 111, 'numpadslash': 111,
 		'comma': 188,	',': 188,
 		'minus': 189,	'-': 189,
 		'dot': 190,	'.': 190,
