@@ -38,7 +38,8 @@ function setHotkeys(commands, callback, opts) {
 			let modifiersOk = opts.ignoreModifiers || (ctrl === e.ctrlKey && shift === e.shiftKey && alt === e.altKey)
 			if(!modifiersOk || boundKey !== e.keyCode) return
 			if(opts.override) _suppressEvent(e)
-			else if(e.type === "keydown" && opts.triggers.length === 1 && opts.triggers[0] === "keyup") _suppressEvent()
+			else if(e.type === "keydown" && opts.triggers.length === 1 && opts.triggers[0] === "keyup")
+				_suppressEvent(e) // suppress keydown event even with override=false if only trigger is keyup
 			if(opts.triggers.includes(e.type)) {
 				if(opts.log) console.log(`Trigger for ${cmd}`)
 				if(callback) callback(e, cmd)
