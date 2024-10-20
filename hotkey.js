@@ -41,6 +41,7 @@ function setHotkeys(commands, callback, opts) {
 			if(opts.log) console.log("ctrl",ctrl,"shift",shift,"alt",alt, "boundKey inside", boundKey, "key", e.keyCode)
 			if(boundKey !== e.keyCode) return
 			if(!opts.ignoreModifiers && (ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey)) return
+			console.log(opts.triggers.join())
 			if(opts.override) e.suppress()
 			else if(e.type === "keydown" && opts.triggers.join() === "keyup")
 				e.suppress() // suppress keydown event even with override=false if only trigger is keyup
@@ -51,7 +52,7 @@ function setHotkeys(commands, callback, opts) {
 				self._keyEvTypes.forEach( evType => opts.target.removeEventListener(evType, hotkeyCb, {capture:true}) )
 			}
 		}
-		self._keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
+		self._keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture
 		if(opts.log) console.log(`hotkey ${cmd} set`)
 	})
 
