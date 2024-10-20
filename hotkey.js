@@ -15,7 +15,11 @@ function setHotkeysDefaultOpts(nuOpts) {
 	return setHotkeys._defaultOpts
 }
 
-Event.prototype.suppress = function() { this.preventDefault(); this.stopPropagation(); this.stopImmediatePropagation() }
+Event.prototype.suppress = function() {
+	this.preventDefault()
+	this.stopPropagation()
+	this.stopImmediatePropagation()	
+}
 
 // Can only bind one key, with modifiers ctrl, shift, alt: shift+A is ok, ctrl+A+B is not
 function setHotkeys(commands, callback, opts) {
@@ -35,11 +39,11 @@ function setHotkeys(commands, callback, opts) {
 		const hotkeyCb = (e) => {
 			if(opts.log) console.log(`boundkey: ${boundKey}, pressed: ${e.keyCode}, e: ${e.type}`)
 			if(opts.log) console.log("ctrl",ctrl,"shift",shift,"alt",alt, "boundKey inside", boundKey, "key", e.keyCode)
-			let modifiersOk = opts.ignoreModifiers || (ctrl === e.ctrlKey && shift === e.shiftKey && alt === e.altKey)
-			if(!modifiersOk || boundKey !== e.keyCode) return
-			if(opts.override) _suppressEvent(e)
-			else if(e.type === "keydown" && opts.triggers.length === 1 && opts.triggers[0] === "keyup")
-				_suppressEvent(e) // suppress keydown event even with override=false if only trigger is keyup
+			if(boundKey !== e.keyCode) return
+			if(!opts.ignoreModifiers && (ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey)) return
+			if(opts.override) e.suppress()
+			else if(e.type === "keydown" && opts.triggers.join() === "keyup")
+				e.suppress() // suppress keydown event even with override=false if only trigger is keyup
 			if(opts.triggers.includes(e.type)) {
 				if(opts.log) console.log(`Trigger for ${cmd}`)
 				if(callback) callback(e, cmd)
@@ -50,12 +54,6 @@ function setHotkeys(commands, callback, opts) {
 		self._keyEvTypes.forEach( evType => opts.target.addEventListener(evType, hotkeyCb, true) ) // use capture			
 		if(opts.log) console.log(`hotkey ${cmd} set`)
 	})
-
-	function _suppressEvent(e) {
-		e.preventDefault()
-		e.stopPropagation()
-		e.stopImmediatePropagation()
-	}
 
 	function _tokenizeCmd(cmd) {
 		return [...new Set( cmd.toLowerCase().replace("++", "+plus").split("+").map( tok => tok.trim() ) )]
