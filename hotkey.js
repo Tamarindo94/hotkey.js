@@ -42,7 +42,7 @@ function setHotkeys(commands, callback, opts) {
 			if(opts.log) console.log("ctrl",ctrl,"shift",shift,"alt",alt, "boundKey inside", boundKey, "key", e.keyCode)
 			if(boundKey !== e.keyCode) return
 			if(!opts.ignoreModifiers && (ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey)) return
-			if(opts.skipInputFields && e.target.matches('input, select, textarea, div[contenteditable="true"]'))
+			if(opts.skipInputFields && e.target.matches('input, select, textarea, div[contenteditable="true"]')) return
 			if(opts.override) e.suppress()
 			else if(e.type === "keydown" && opts.triggers.join() === "keyup")
 				e.suppress() // suppress keydown event even with override=false if only trigger is keyup
