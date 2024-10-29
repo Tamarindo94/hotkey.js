@@ -29,8 +29,9 @@ function setHotkeys(commands, callback, opts) {
 		[callback, opts] = [opts, callback]
 	opts = {...self._defaultOpts, ...opts}
 	if(typeof opts.triggers === "string") opts.triggers = opts.triggers.split(" ")
+	if(typeof commands === "string") commands = [commands]
 
-	_toArray(commands).forEach( cmd => {
+	commands.forEach( cmd => {
 		let ctrl, shift, alt, tokens = _tokenizeCmd(cmd)
 		if(!opts.ignoreModifiers) [ctrl, shift, alt] = ["ctrl", "shift", "alt"].map( k => !!_spliceValue(tokens, k) )
 		let boundKey = self._MAPS["common"][tokens[0]] ||
@@ -40,12 +41,15 @@ function setHotkeys(commands, callback, opts) {
 		const hotkeyCb = (e) => {
 			if(opts.log) console.log(`boundkey: ${boundKey}, pressed: ${e.keyCode}, e: ${e.type}`)
 			if(opts.log) console.log("ctrl",ctrl,"shift",shift,"alt",alt, "boundKey inside", boundKey, "key", e.keyCode)
+			// Check if should run or abort
 			if(boundKey !== e.keyCode) return
 			if(!opts.ignoreModifiers && (ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey)) return
 			if(opts.skipInputFields && e.target.matches('input, select, textarea, div[contenteditable="true"]')) return
+			// Suppress event if needed
 			if(opts.override) e.suppress()
 			else if(e.type === "keydown" && opts.triggers.join() === "keyup")
 				e.suppress() // suppress keydown event even with override=false if only trigger is keyup
+			// Callback
 			if(opts.triggers.includes(e.type)) {
 				if(opts.log) console.log(`Trigger for ${cmd}`)
 				if(callback) callback(e, cmd)
@@ -65,10 +69,6 @@ function setHotkeys(commands, callback, opts) {
 		for(let i=0, n=arr.length; i < n; i++)
 			if(arr[i] === splicer)
 				return arr.splice(i, 1)[0]
-	}
-	
-	function _toArray(obj) {
-		return Array.isArray(obj) ? obj : [obj]
 	}
 }
 
