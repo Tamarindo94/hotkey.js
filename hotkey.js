@@ -32,8 +32,8 @@ function setHotkeys(commands, callback, opts) {
 	if(typeof commands === "string") commands = [commands]
 
 	commands.forEach( cmd => {
-		let ctrl, shift, alt, tokens = _tokenizeCmd(cmd)
-		if(!opts.ignoreModifiers) [ctrl, shift, alt] = ["ctrl", "shift", "alt"].map( k => !!_spliceValue(tokens, k) )
+		let tokens = _tokenizeCmd(cmd)
+		let [ctrl, shift, alt] = ["ctrl", "shift", "alt"].map( k => !!_spliceValue(tokens, k) )
 		let boundKey = self._MAPS["common"][tokens[0]] ||
 				self._MAPS[self._LOCALE][tokens[0]] ||
 				tokens[0].toUpperCase().charCodeAt(0) // tokens not in _maps must be uppercase for keyCode to match boundKey
@@ -44,11 +44,11 @@ function setHotkeys(commands, callback, opts) {
 			// Check if should run or abort
 			if(boundKey !== e.keyCode) return
 			if(!opts.ignoreModifiers && (ctrl !== e.ctrlKey || shift !== e.shiftKey || alt !== e.altKey)) return
-			if(opts.skipInputFields && e.target.matches('input, select, textarea, div[contenteditable="true"]')) return
-			// Suppress event if needed
-			if(opts.override) e.suppress()
-			else if(e.type === "keydown" && opts.triggers.join() === "keyup")
-				e.suppress() // suppress keydown event even with override=false if only trigger is keyup
+			if(opts.skipInputFields && !ctrl && !shift && !alt // dont skip if cmd requires a modifier
+					&& e.target.matches('input, select, textarea, div[contenteditable="true"]')) return
+			// Suppress event if needed; the option can be true (both keydown and keyup), false (none), "up" or "down"
+			if(opts.override === true || e.type === `key${String(opts.override).toLowerCase()}`)
+				 e.suppress()
 			// Callback
 			if(opts.triggers.includes(e.type)) {
 				if(opts.log) console.log(`Trigger for ${cmd}`)
